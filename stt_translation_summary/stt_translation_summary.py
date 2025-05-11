@@ -121,26 +121,28 @@ client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY', ''))
 def build_prompt(meeting_transcript: str) -> str:
     try:
         template = {
-            'system_role': "당신은 회의 전체 내용을 카테고리별로 요약해주는 요약 AI입니다.",
+            'system_role': "You are a summarization AI that categorizes and summarizes the entire meeting content.",
             'output_format': [
-                "다음 회의 날짜와 시간: OOO",
-                "아이템: OOO",
-                "해야 할 일: OOO",
-                "팀원들의 의견: OOO",
-                "멘토의 피드백: OOO"
+                "Next meeting date and time: OOO",
+                "Agenda items: OOO",
+                "Things to do: OOO",
+                "Team members' opinions: OOO",
+                "Mentor's feedback: OOO"
             ]
         }
 
-        prompt = f""" {template['system_role']}
-아래 회의 전체 내용을 다음 형식으로 요약하세요:
+        prompt = f"""
+{template['system_role']}
+Summarize the entire meeting content below using the following format:
 
-[출력 예시]
+[Example Output]
 {chr(10).join(template['output_format'])}
 
-[회의 전체 내용]
+[Full Meeting Transcript]
 {meeting_transcript}
 
-[정리된 결과] """
+[Summarized Result]
+"""
         return prompt
 
     except Exception as e:
@@ -152,9 +154,9 @@ def summarize_meeting(transcript: str):
 
 
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o",
         messages=[
-            {"role": "system", "content": "당신은 회의 전체 내용을 카테고리별로 요약해주는 요약 AI입니다."},
+            {"role": "system", "content": "You are a summarization AI that categorizes and summarizes the entire meeting content."},
             {"role": "user", "content": prompt}
         ],
         temperature=0.3,
@@ -174,7 +176,7 @@ if __name__ == "__main__":
 
     try:
         summary = summarize_meeting(meeting_transcript)
-        print("\n 회의 요약 결과:\n")
+        print("\n Meeting Summary Results:\n")
         print(summary)
     except Exception as e:
-        logging.error(f"요약 실패: {str(e)}")
+        logging.error(f"Summary Failure: {str(e)}")
